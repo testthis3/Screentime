@@ -4,7 +4,7 @@
 Minimal X11 screen-time tracker written in C.
 
 Dependencies:
-- bas-devel
+- base-devel
 - libX11-devel
 - gcc
 - make
@@ -15,7 +15,7 @@ Dependencies:
 Clone the project, and run
 
     $ make
-    $ doas make install
+    $ doas make install clean
 
 This installs screentime to: ~/.local/bin/screentime
 
@@ -36,9 +36,3 @@ go to `$HOME/.xinitrc` and add
 Logs are saved automatically to:
 
 ~/.local/share/screentime/YYYY-MM-DD.log
-
-make uninstall
-
-To remove the built binary:
-
-make clean**
