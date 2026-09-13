@@ -15,7 +15,7 @@ Dependencies:
 Clone the project, and run
 
     $ make
-    $ doas make install clean
+    $ make install clean
 
 This installs screentime to: ~/.local/bin/screentime
 
