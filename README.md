@@ -1,4 +1,6 @@
 
+Written by AI!!
+
 # screentime
 
 Minimal X11 screen-time tracker written in C.
