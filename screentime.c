@@ -1,3 +1,4 @@
+#include <stddef.h>
 #define _POSIX_C_SOURCE 200809L
 
 #include <X11/Xlib.h>
@@ -15,7 +16,7 @@
 #include <errno.h>
 
 #define POLL_INTERVAL 1
-#define MIN_SESSION_SECONDS 60
+#define MIN_SESSION_SECONDS 20
 
 static volatile sig_atomic_t running = 1;
 
@@ -43,6 +44,7 @@ static void sanitize_string(char *s)
         if (*p == '\n' || *p == '\r')
             *p = ' ';
     }
+}
 
 static int get_window_property_string(
     Display *display,
@@ -330,24 +332,14 @@ static void format_duration(
     long minutes = (seconds % 3600) / 60;
     long secs = seconds % 60;
 
-    if (hours > 0) {
-        snprintf(
-            buffer,
-            buffer_size,
-            "%ldh %02ldm %02lds",
-            hours,
-            minutes,
-            secs
-        );
-    } else {
-        snprintf(
-            buffer,
-            buffer_size,
-            "%ldm %02lds",
-            minutes,
-            secs
-        );
-    }
+    snprintf(
+        buffer,
+        buffer_size,
+        "%02ld:%02ld:%02ld",
+        hours,
+        minutes,
+        secs
+    );
 }
 
 static void write_session(
@@ -386,12 +378,14 @@ static void write_session(
         &finish_tm
     );
 
+    struct tm *local_time = &start_tm;
+
     /*
      * If the session crosses midnight, write it to the
      * day where the session started. Normally midnight
      * is handled before reaching this point.
      */
-    FILE *log = open_daily_log(&start_tm);
+    FILE *log = open_daily_log(local_time);
 
     if (!log)
         return;
@@ -404,13 +398,25 @@ static void write_session(
         sizeof(duration_string)
     );
 
+    char date[60];
+    snprintf(
+        date,
+        sizeof(date),
+        "%04d-%02d-%02d",
+        local_time->tm_year + 1900,
+        local_time->tm_mon + 1,
+        local_time->tm_mday
+    );
+
+    
     fprintf(
         log,
-        "%s -> %s on %s | %s (%s)\n",
-        start_time,
-        finish_time,
+        "('%s', '%s', '%s', '%s', '%s', '%s'),\n",
+        date,
         info->app,
         info->title,
+        start_time,
+        finish_time,
         duration_string
     );
 
@@ -571,3 +577,4 @@ int main(void)
 
     return EXIT_SUCCESS;
 }
+
